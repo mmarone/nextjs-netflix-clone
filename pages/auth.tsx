@@ -1,7 +1,9 @@
 import axios from 'axios'
 import { useState, useCallback } from 'react'
-import Input from '@/components/Input'
 import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/router'
+
+import Input from '@/components/Input'
 
 import { FcGoogle } from 'react-icons/fc'
 import { FaGithub } from 'react-icons/fa'
@@ -12,6 +14,8 @@ const Auth = () => {
   const [password, setPassword] = useState('')
 
   const [variant, setVariant] = useState('login')
+
+  const router = useRouter()
 
   const toggleVariant = useCallback(() => {
     setVariant((currentVariant) =>
@@ -27,10 +31,12 @@ const Auth = () => {
         redirect: false,
         callbackUrl: '/profiles',
       })
+
+      router.push('/profiles')
     } catch (error) {
       console.log(error)
     }
-  }, [email, password])
+  }, [email, password, router])
 
   const register = useCallback(async () => {
     try {
@@ -45,6 +51,19 @@ const Auth = () => {
       console.log(err)
     }
   }, [email, name, password, login])
+
+  const loginDemoUser = useCallback(async () => {
+    try {
+      await signIn('credentials', {
+        email: process.env.NEXT_PUBLIC_DEMO_EMAIL,
+        password: process.env.NEXT_PUBLIC_DEMO_PASSWORD,
+        redirect: true,
+        callbackUrl: '/profiles',
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }, [])
 
   return (
     <div className="relative h-full bg-[url('/images/hero.jpg')] bg-no-repeat bg-center bg-fixed bg-cover">
@@ -97,6 +116,12 @@ const Auth = () => {
               onClick={variant === 'login' ? login : register}
             >
               {variant === 'login' ? 'Login' : 'Sign up'}
+            </button>
+            <button
+              className="bg-red-600 py-3 text-white rounded-md w-full mt-4 hover:bg-red-700 transition"
+              onClick={loginDemoUser}
+            >
+              Demo User
             </button>
             <div className="flex flex-row items-center gap-4 mt-8 justify-center">
               <div
